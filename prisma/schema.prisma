@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int @id
+  displayName String @db.TinyText @map("display_name")
+
+  @@map("users")
+}
+
+model Channel {
+  id          Int @id @default(autoincrement())
+
+  name        String @unique @db.VarChar(255)
+  description String? @db.Text
+
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  episodes    Episode[]
+
+  @@map("channels")
+}
+
+model Episode {
+  channelId   Int @map("channel_id")
+  id          Int @id @default(autoincrement())
+
+  title       String @db.MediumText
+  description String? @db.Text
+
+  audioUrl    String @db.Text @map("audio_url")
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  channel     Channel @relation(fields: [channelId], references: [id])
+
+  @@map("episodes")
+}
